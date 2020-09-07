@@ -27,7 +27,7 @@ config = {
 
 
 		# elasticsearch host
-		'host': 'localhost',
+		'host': '192.168.43.30',
 
 
 

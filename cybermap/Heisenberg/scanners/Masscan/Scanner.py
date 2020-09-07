@@ -4,6 +4,8 @@ from datetime import datetime
 from elasticsearch import Elasticsearch 
 from Heisenberg.scanners.BaseScanner import BaseScanner
 from Heisenberg.scanners.Masscan.config import config
+from Heisenberg.config.config import config as main_cnfg
+from datetime import datetime
 
 class Scanner(BaseScanner):
     """
@@ -27,42 +29,21 @@ class Scanner(BaseScanner):
 
 
 
-    def transform(self):
-        if self.out == None:
-            return None
-        hosts = {}
-        for scan in self.out:
-            ip = scan.get('ip')
-            port = scan.get('ports')[0].get('port')
-            service = scan.get('ports')[0].get('service')
-            if ip not in hosts:
-                hosts[ip] = {port: []}
-                if service:
-                    hosts[ip][port].append({'name': service.get('name'), 'banner': service.get('banner')})
-            else:
-                host = hosts.get(ip)
-                if port not in host:
-                    host[port] = []
-                if service:
-                    host[port].append({'name': service.get('name'), 'banner': service.get('banner')})
-        self.out = {'tool': 'masscan', 'date': datetime.now().strftime("%d/%m/%Y %H:%M:%S"), 'results': hosts}
-        return hosts
-
-
-
     def commit(self):
-        _es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
-        
-        if not _es.ping():
-            return False
-        
-        res = _es.index(index='scans', doc_type='hosts', body=self.out)
-        return res['result'] == 'created'
+        _es = Elasticsearch([{'host': main_cnfg['elasticsearch']['host'], 'port': main_cnfg['elasticsearch']['port']}])
+        for result in self.out:
+            if 'service' not in result['ports'][0]:
+                continue
+            scan_index = {}
+            scan_index['ip'] = result['ip']
+            scan_index['port'] = result['ports'][0]['port']
+            scan_index['service_name'] = result['ports'][0]['service']['name']
+            scan_index['service_banner'] = result['ports'][0]['service']['banner'] 
+            scan_index['datetime'] = datetime.fromtimestamp(int(result['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")
+            _es.index(index=main_cnfg['elasticsearch']['index'], doc_type='_doc', body=scan_index)
 
 
 
     def start_pipeline(self):
         self.scan()
-        if self.transform() != None:
-            return self.commit()
-        return False
+        self.commit()
