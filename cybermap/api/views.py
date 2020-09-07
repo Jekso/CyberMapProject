@@ -11,7 +11,7 @@ class StartScanView(APIView):
     def post(self, request):
         scanner = Scanner(ip_range='185.176.40.0/24')
         scanner.start_pipeline()
-        return Response({'success': 1})
+        return Response({'message': 'scan is working on background...'})
 
 
 
@@ -22,7 +22,7 @@ class GetResultsView(APIView):
     def get(self, request):
         _es = Elasticsearch([{'host': main_cnfg['elasticsearch']['host'],'port': main_cnfg['elasticsearch']['port']}])
         from_i = request.data.get('from', 0)
-        size = request.data.get('size', 20)
+        size = request.data.get('size', 50)
         ip = request.data.get('ip', None)
         ports = request.data.get('ports', None)
         services = request.data.get('services', None)
