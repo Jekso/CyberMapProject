@@ -6,6 +6,7 @@ from Heisenberg.scanners.BaseScanner import BaseScanner
 from Heisenberg.scanners.Masscan.config import config
 from Heisenberg.config.config import config as main_cnfg
 from datetime import datetime
+import threading
 
 class Scanner(BaseScanner):
     """
@@ -18,20 +19,15 @@ class Scanner(BaseScanner):
         self.source_ip = config['source_ip']
         self.scanner_path = config['scanner_path']
         self.temp_file = config['scanner_path'] + '/temp.json'
-        self.out = None
 
 
 
     def scan(self):
-        command = f'{self.scanner_path}/masscan {self.ip_range} {self.ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
+        command = f'sudo {self.scanner_path}/masscan {self.ip_range} {self.ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
         res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
-        self.out = json.loads(res)
-
-
-
-    def commit(self):
+        results = json.loads(res)
         _es = Elasticsearch([{'host': main_cnfg['elasticsearch']['host'], 'port': main_cnfg['elasticsearch']['port']}])
-        for result in self.out:
+        for result in results:
             if 'service' not in result['ports'][0]:
                 continue
             scan_index = {}
@@ -45,5 +41,5 @@ class Scanner(BaseScanner):
 
 
     def start_pipeline(self):
-        self.scan()
-        self.commit()
+        t1 = threading.Thread(target=self.scan)
+        t1.start()
