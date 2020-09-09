@@ -47,10 +47,7 @@ class StartScanView(APIView):
         scanner = Scanner(target_ips_file=target_ips_file, ip_range=ip_range, excluded_ips_file=excluded_ips_file, ports=ports)
         status = scanner.scan()
 
-        if status:
-            return Response({'message': 'scan is working on background...'})
-        else:
-            return Response({'message': 'error happen during process, check logs index.'})
+        return Response({'message': 'scan is working on background..., if any error happen during process, check logs index.'})
 
 
 

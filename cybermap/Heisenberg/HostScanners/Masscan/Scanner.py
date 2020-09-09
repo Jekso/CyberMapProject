@@ -9,12 +9,6 @@ from datetime import datetime
 import threading
 import traceback
 
-try:
-   import queue
-except ImportError:
-   import Queue as queue
-
-
 
 _es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
 que = queue.Queue()
@@ -70,12 +64,5 @@ class Scanner(BaseScanner):
 
 
     def scan(self):
-        # t1 = threading.Thread(target=self.handler)
-        # t.start()
-        # result = t1.join()
-        # print(result)
-        t1 = threading.Thread(target=lambda q, arg1: q.put(self.handler()), args=(que))
+        t1 = threading.Thread(target=self.handler)
         t1.start()
-        t1.join()
-        result = que.get()
-        return result
