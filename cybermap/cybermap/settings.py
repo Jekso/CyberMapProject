@@ -30,7 +30,7 @@ ALLOWED_HOSTS = config['allowed_hosts']
 MEDIA_URL =  '/uploads/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 CORS_ORIGIN_ALLOW_ALL =  True
-
+TIME_ZONE = 'Africa/Cairo'
 
 # Application definition
 
