@@ -11,7 +11,6 @@ import traceback
 
 
 _es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
-que = queue.Queue()
 
 class Scanner(BaseScanner):
     """
