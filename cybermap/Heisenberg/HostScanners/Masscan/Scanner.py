@@ -41,10 +41,13 @@ class Scanner(BaseScanner):
             res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
             results = json.loads(res)
             datenow = datetime.fromtimestamp(int(results['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")
+            job_body = {'target_ips_file': self.target_ips_file, 'ip_range': self.ip_range, 'excluded_ips_file': self.excluded_ips_file, 'ports': self.ports, 'datetime': datenow}
+            job = _es.index(index=config['elasticsearch']['jobs_index'], doc_type='_doc', body=job_body)
             for result in results:
                 if 'service' not in result['ports'][0]:
                     continue
                 scan_index = {}
+                scan_index['job_id'] = job['_id']
                 scan_index['ip'] = result['ip']
                 scan_index['port'] = result['ports'][0]['port']
                 scan_index['service_name'] = result['ports'][0]['service']['name']
