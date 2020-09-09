@@ -8,11 +8,12 @@ import Heisenberg.Helpers.Logger as Logger
 from datetime import datetime
 import threading
 import traceback
+import Queue
 
 
 
 _es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
-
+que = Queue.Queue()
 
 class Scanner(BaseScanner):
     """
@@ -65,8 +66,12 @@ class Scanner(BaseScanner):
 
 
     def scan(self):
-        t1 = threading.Thread(target=self.handler)
+        # t1 = threading.Thread(target=self.handler)
+        # t.start()
+        # result = t1.join()
+        # print(result)
+        t1 = threading.Thread(target=lambda q, arg1: q.put(self.handler()), args=(que))
         t1.start()
-        result = t1.join()
-        print(result)
+        t1.join()
+        result = que.get()
         return result
