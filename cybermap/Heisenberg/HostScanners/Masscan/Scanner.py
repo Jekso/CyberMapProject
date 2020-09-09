@@ -8,12 +8,16 @@ import Heisenberg.Helpers.Logger as Logger
 from datetime import datetime
 import threading
 import traceback
-import Queue
+
+try:
+   import queue
+except ImportError:
+   import Queue as queue
 
 
 
 _es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
-que = Queue.Queue()
+que = queue.Queue()
 
 class Scanner(BaseScanner):
     """
