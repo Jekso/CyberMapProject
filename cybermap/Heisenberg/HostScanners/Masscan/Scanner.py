@@ -68,4 +68,5 @@ class Scanner(BaseScanner):
         t1 = threading.Thread(target=self.handler)
         t1.start()
         result = t1.join()
+        print(result)
         return result
