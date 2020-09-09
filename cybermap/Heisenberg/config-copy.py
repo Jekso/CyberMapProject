@@ -15,16 +15,17 @@ config = {
         'options':
         {
             'rate': '1000',
-            'source_ip': '192.168.43.35',
+            'source_ip': '127.20.0.1',
             'scanner_path': '/home/heisenberg/Desktop/masscan/bin',
         }
     },
 
 	'elasticsearch':
     {
-		'host': '192.168.43.30',
+		'host': 'localhost',
 		'port': '9200',
-		'index': 'scans'
+		'index': 'scans',
+        'logs_index': 'logs'
 	},
 
     'allowed_hosts': ['localhost']

@@ -10,8 +10,11 @@ class StartScanView(APIView):
 
     def post(self, request):
         scanner = Scanner(ip_range='185.176.40.0/24')
-        scanner.scan()
-        return Response({'message': 'scan is working on background...'})
+        status = scanner.scan()
+        if status:
+            return Response({'message': 'scan is working on background...'})
+        else:
+            return Response({'message': 'error happen during process, check logs index.'})
 
 
 
