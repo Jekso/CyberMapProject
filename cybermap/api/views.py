@@ -86,7 +86,7 @@ class GetResultsView(APIView):
             'query': query
         }
 
-        res = _es.search(index=config['elasticsearch']['index'], body=body)
+        res = _es.search(index=config['elasticsearch']['scans_index'], body=body)
 
         Logger.search_log(op)
 

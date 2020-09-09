@@ -24,7 +24,8 @@ config = {
     {
 		'host': 'localhost',
 		'port': '9200',
-		'index': 'scans',
+        'jobs_index': 'jobs',
+		'scans_index': 'scan-results',
         'logs_index': 'logs'
 	},
 

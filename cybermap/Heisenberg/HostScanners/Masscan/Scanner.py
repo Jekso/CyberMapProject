@@ -1,7 +1,7 @@
 import subprocess
 import json
 from datetime import datetime
-from elasticsearch import Elasticsearch 
+from elasticsearch import Elasticsearch
 from Heisenberg.HostScanners.BaseScanner import BaseScanner
 from Heisenberg.config import config
 import Heisenberg.Helpers.Logger as Logger
@@ -50,7 +50,7 @@ class Scanner(BaseScanner):
                 scan_index['service_name'] = result['ports'][0]['service']['name']
                 scan_index['service_banner'] = result['ports'][0]['service']['banner'] 
                 scan_index['datetime'] = datenow
-                _es.index(index=config['elasticsearch']['index'], doc_type='_doc', body=scan_index)
+                _es.index(index=config['elasticsearch']['scans_index'], doc_type='_doc', body=scan_index)
             Logger.scan_log("Masscan")
             return True
         except Exception:
