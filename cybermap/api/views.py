@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from elasticsearch import Elasticsearch
 from Heisenberg.config import config
 from Heisenberg.bootstrap import Scanner
+import Heisenberg.Helpers.Logger as Logger
 from datetime import datetime
 
 
@@ -54,8 +55,7 @@ class GetResultsView(APIView):
 
         res = _es.search(index=config['elasticsearch']['index'], body=body)
 
-        log_index = {'type': 'info-search', 'message': op, 'date': datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
-        _es.index(index=config['elasticsearch']['logs_index'], doc_type='_doc', body=log_index)
+        Logger.search_log(op)
 
         content = {'operation': op, 'data': {'results_count': res['hits']['total']['value'], 'results': [x["_source"] for x in res['hits']['hits']]}, 'error': '', 'status_code': '200'}
         return Response(content)
