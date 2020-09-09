@@ -27,6 +27,9 @@ SECRET_KEY = '1myy-5vf-(bdgw=1*8!%fvg50&iwae))txk%)nfyk3kniz-05o'
 DEBUG = True
 
 ALLOWED_HOSTS = config['allowed_hosts']
+MEDIA_URL =  '/uploads/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
+CORS_ORIGIN_ALLOW_ALL =  True
 
 
 # Application definition
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     # Third-Party Apps
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 
     # Local Apps (Your project's apps)
     'api',
@@ -62,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'cybermap.urls'
