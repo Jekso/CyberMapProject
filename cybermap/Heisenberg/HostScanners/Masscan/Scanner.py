@@ -25,15 +25,22 @@ class Scanner(BaseScanner):
         self.source_ip = config['scanner']['options']['source_ip']
         self.scanner_path = config['scanner']['options']['scanner_path']
         self.temp_file = config['scanner']['options']['scanner_path'] + '/temp.json'
+        self.target_ips_file = target_ips_file
+        self.ip_range = ip_range
+        self.excluded_ips_file = excluded_ips_file
+        self.ports = ports
+
 
 
 
     def handler(self):
         try:
-            command = f'sudo {self.scanner_path}/masscan {self.ip_range} {self.ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
+            target = self.ip_range if self.ip_range is not None else f'-iL {self.target_ips_file}'
+            exclude = f'‐‐excludefile {self.excluded_ips_file}' if self.excluded_ips_file is not None else ''
+            command = f'sudo {self.scanner_path}/masscan {target} {exclude} {self.ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
             res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
             results = json.loads(res)
-            datenow = datetime.fromtimestamp(int(result['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")
+            datenow = datetime.fromtimestamp(int(results['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")
             for result in results:
                 if 'service' not in result['ports'][0]:
                     continue
