@@ -6,6 +6,12 @@ from Heisenberg.HostScanners.BaseScanner import BaseScanner
 from Heisenberg.config import config
 from datetime import datetime
 import threading
+import traceback
+
+
+
+_es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
+
 
 class Scanner(BaseScanner):
     """
@@ -26,7 +32,6 @@ class Scanner(BaseScanner):
             command = f'sudo {self.scanner_path}/masscan {self.ip_range} {self.ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
             res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
             results = json.loads(res)
-            _es = Elasticsearch([{'host': config['elasticsearch']['host'], 'port': config['elasticsearch']['port']}])
             for result in results:
                 if 'service' not in result['ports'][0]:
                     continue
@@ -37,9 +42,11 @@ class Scanner(BaseScanner):
                 scan_index['service_banner'] = result['ports'][0]['service']['banner'] 
                 scan_index['datetime'] = datetime.fromtimestamp(int(result['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")
                 _es.index(index=config['elasticsearch']['index'], doc_type='_doc', body=scan_index)
+            log_index = {'type': 'info-scan', 'message': "new scan", 'date': datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+            _es.index(index=config['elasticsearch']['logs_index'], doc_type='_doc', body=log_index)
             return True
-        except Exception as e:
-            log_index = {'type': 'error', 'message': type(e).__name__, 'date': datetime.fromtimestamp(int(result['timestamp'])).strftime("%d/%m/%Y %H:%M:%S")}
+        except Exception:
+            log_index = {'type': 'error', 'message': traceback.format_exc(), 'date': datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
             _es.index(index=config['elasticsearch']['logs_index'], doc_type='_doc', body=log_index)
             return False
 

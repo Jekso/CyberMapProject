@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from elasticsearch import Elasticsearch
 from Heisenberg.config import config
 from Heisenberg.bootstrap import Scanner
+from datetime import datetime
+
 
 class StartScanView(APIView):
     permission_classes = (IsAuthenticated,)     
@@ -32,12 +34,16 @@ class GetResultsView(APIView):
 
         if ip is not None:
             query = {'match': {'ip': ip}}
+            op = f'searching for ip: {ip}'
         elif ports is not None:
             query = {'terms': {'port': ports}}
+            op = f'searching for ports: {ports}'
         elif services is not None:
             query = {'terms': {'service_name': services}}
+            op = f'searching for services: {services}'
         else:
             query = {'match_all': {}}
+            op = f'get all data'
 
 
         body = {
@@ -48,5 +54,8 @@ class GetResultsView(APIView):
 
         res = _es.search(index=config['elasticsearch']['index'], body=body)
 
-        content = {'data': {'results_count': res['hits']['total']['value'], 'results': [x["_source"] for x in res['hits']['hits']]}, 'error': '', 'status_code': '200'}
+        log_index = {'type': 'info-search', 'message': op, 'date': datetime.now().strftime("%d/%m/%Y %H:%M:%S")}
+        _es.index(index=config['elasticsearch']['logs_index'], doc_type='_doc', body=log_index)
+
+        content = {'operation': op, 'data': {'results_count': res['hits']['total']['value'], 'results': [x["_source"] for x in res['hits']['hits']]}, 'error': '', 'status_code': '200'}
         return Response(content)
