@@ -37,7 +37,6 @@ class Scanner(BaseScanner):
             exclude = f'--excludefile {self.excluded_ips_file}' if self.excluded_ips_file is not None else ''
             ports = f'-p{self.ports}' if self.ports != '--top-ports' else self.ports
             command = f'sudo {self.scanner_path}/masscan {target} {ports} {exclude} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
-            print(command)
             res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
             results = json.loads(res)
             datenow = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
