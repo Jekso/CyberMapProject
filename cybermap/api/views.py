@@ -21,7 +21,7 @@ class StartScanView(APIView):
         target_ips_file = None
         excluded_ips_file = None
         ip_range = None
-        ports = None
+        ports = '--top-ports'
 
 
         if 'target_ips_file' not in request.FILES and 'ip_range' not in request.data:
