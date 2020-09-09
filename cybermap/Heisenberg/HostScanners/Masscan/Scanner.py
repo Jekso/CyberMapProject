@@ -34,9 +34,9 @@ class Scanner(BaseScanner):
     def handler(self):
         try:
             target = self.ip_range if self.ip_range is not None else f'-iL {self.target_ips_file}'
-            exclude = f'‐‐excludefile {self.excluded_ips_file}' if self.excluded_ips_file is not None else ''
+            exclude = f'--excludefile {self.excluded_ips_file}' if self.excluded_ips_file is not None else ''
             ports = f'-p{self.ports}' if self.ports != '--top-ports' else self.ports
-            command = f'sudo {self.scanner_path}/masscan {target} {exclude} {ports} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
+            command = f'sudo {self.scanner_path}/masscan {target} {ports} {exclude} --rate {self.rate} --banners --source-ip {self.source_ip} -oJ {self.temp_file} > /dev/null 2>&1 && cat {self.temp_file} && rm -rf {self.temp_file}'
             print(command)
             res = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True).communicate()[0].decode('utf-8')
             results = json.loads(res)

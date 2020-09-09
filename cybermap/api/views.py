@@ -42,7 +42,7 @@ class StartScanView(APIView):
             ip_range = request.data.get('ip_range')
 
         if 'ports' in request.data:
-            ports = ','.join(request.data.getlist('ports'))
+            ports = request.data.get('ports')
     
         scanner = Scanner(target_ips_file=target_ips_file, ip_range=ip_range, excluded_ips_file=excluded_ips_file, ports=ports)
         status = scanner.scan()
