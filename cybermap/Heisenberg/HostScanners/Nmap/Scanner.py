@@ -1,6 +1,6 @@
 class BaseScanner:
     """
-    Base Scanner Class
+    Nmap Scanner Wrapper
 
     """
 
@@ -17,16 +17,5 @@ class BaseScanner:
         pass
 
 
-
-    def transform(self):
-        pass
-
-
-
-    def commit(self):
-        pass
-
-
-
-    def start_pipeline(self):
+    def handler(self):
         pass
